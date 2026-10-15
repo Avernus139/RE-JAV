@@ -1,7 +1,6 @@
 
 package eu.kanade.tachiyomi.animeextension.all.javlibrary
 
-
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.AnimesPage
 import eu.kanade.tachiyomi.animesource.model.SAnime
@@ -15,8 +14,8 @@ import okhttp3.Response
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
-
 class JavLibrary : AnimeHttpSource() {
+
     override val name = "Jav Library"
     override val baseUrl = "https://avernus139.github.io/JavLibrary"
     override val lang = "en"
@@ -34,7 +33,13 @@ class JavLibrary : AnimeHttpSource() {
         page: Int,
         query: String,
         filters: AnimeFilterList,
-    ): Request = GET(baseUrl, headers)
+    ): Request {
+        val encodedQuery = URLEncoder.encode(
+            query,
+            StandardCharsets.UTF_8.name(),
+        )
+        return GET("$baseUrl/?q=$encodedQuery", headers)
+    }
 
     override fun searchAnimeParse(response: Response): AnimesPage {
         val document = response.asJsoup()
@@ -46,6 +51,9 @@ class JavLibrary : AnimeHttpSource() {
 
         return AnimesPage(results, false)
     }
+
+    override fun animeDetailsRequest(anime: SAnime): Request =
+        GET("$baseUrl${anime.url}", headers)
 
     override fun animeDetailsParse(response: Response): SAnime {
         val document = response.asJsoup()
@@ -59,10 +67,14 @@ class JavLibrary : AnimeHttpSource() {
         }
     }
 
+    override fun latestUpdatesRequest(page: Int): Request =
+        GET(baseUrl, headers)
+
     override fun latestUpdatesParse(response: Response): AnimesPage =
         AnimesPage(emptyList(), false)
 
-    override fun getFilterList(): AnimeFilterList = AnimeFilterList()
+    override fun getFilterList(): AnimeFilterList =
+        AnimeFilterList()
 
     private fun parseCards(document: Document): List<SAnime> =
         document.select(".movie-grid .movie")
@@ -72,6 +84,7 @@ class JavLibrary : AnimeHttpSource() {
     private fun parseCard(element: Element): SAnime? {
         val title = element.selectFirst("p")?.text()?.trim().orEmpty()
         val image = element.selectFirst("img")
+
         val cover = image?.absUrl("src").orEmpty().ifBlank {
             image?.attr("src").orEmpty()
         }
