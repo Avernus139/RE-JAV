@@ -48,11 +48,18 @@ jobs:
           apply plugin: "kei.plugins.extension.legacy"
           EOF
 
-      - name: Build extension APK
+     
+      - name: Auto-format Kotlin source
         working-directory: framework
         run: |
           chmod +x gradlew
+          ./gradlew :src:all:javlibrary:spotlessApply
+
+      - name: Build extension APK
+        working-directory: framework
+        run: |
           ./gradlew :src:all:javlibrary:assembleDebug --stacktrace
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
