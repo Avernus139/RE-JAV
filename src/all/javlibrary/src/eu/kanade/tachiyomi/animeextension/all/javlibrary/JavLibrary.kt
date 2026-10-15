@@ -6,15 +6,14 @@ import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 class JavLibrary : AnimeHttpSource() {
-
     override val name = "Jav Library"
     override val baseUrl = "https://avernus139.github.io/JavLibrary"
     override val lang = "en"
