@@ -1,16 +1,20 @@
 
 package eu.kanade.tachiyomi.animeextension.all.javlibrary
 
+
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.AnimesPage
 import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
+import eu.kanade.tachiyomi.network.GET
+import eu.kanade.tachiyomi.util.asJsoup
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+
 
 class JavLibrary : AnimeHttpSource() {
     override val name = "Jav Library"
