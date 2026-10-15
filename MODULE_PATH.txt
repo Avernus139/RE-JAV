@@ -1,0 +1,4 @@
+Module path: src/all/javlibrary
+Source class: eu.kanade.tachiyomi.animeextension.all.javlibrary.JavLibrary
+Website: https://avernus139.github.io/JavLibrary/
+Expected selectors: .movie-grid .movie, .movie p, .movie img
