@@ -4,6 +4,7 @@ package eu.kanade.tachiyomi.animeextension.all.javlibrary
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.AnimesPage
 import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.util.asJsoup
@@ -24,10 +25,8 @@ class JavLibrary : AnimeHttpSource() {
     override fun popularAnimeRequest(page: Int): Request =
         GET(baseUrl, headers)
 
-    override fun popularAnimeParse(response: Response): AnimesPage {
-        val document = response.asJsoup()
-        return AnimesPage(parseCards(document), false)
-    }
+    override fun popularAnimeParse(response: Response): AnimesPage =
+        AnimesPage(parseCards(response.asJsoup()), false)
 
     override fun searchAnimeRequest(
         page: Int,
@@ -42,10 +41,9 @@ class JavLibrary : AnimeHttpSource() {
     }
 
     override fun searchAnimeParse(response: Response): AnimesPage {
-        val document = response.asJsoup()
         val query = response.request.url.queryParameter("q").orEmpty().trim()
 
-        val results = parseCards(document).filter {
+        val results = parseCards(response.asJsoup()).filter {
             query.isBlank() || it.title.contains(query, ignoreCase = true)
         }
 
@@ -56,10 +54,9 @@ class JavLibrary : AnimeHttpSource() {
         GET("$baseUrl${anime.url}", headers)
 
     override fun animeDetailsParse(response: Response): SAnime {
-        val document = response.asJsoup()
         val title = response.request.url.queryParameter("title").orEmpty()
 
-        return parseCards(document).firstOrNull {
+        return parseCards(response.asJsoup()).firstOrNull {
             it.title.equals(title, ignoreCase = true)
         } ?: SAnime.create().apply {
             this.title = title.ifBlank { "Jav Library item" }
@@ -72,6 +69,12 @@ class JavLibrary : AnimeHttpSource() {
 
     override fun latestUpdatesParse(response: Response): AnimesPage =
         AnimesPage(emptyList(), false)
+
+    override fun episodeListParse(response: Response): List<SEpisode> =
+        emptyList()
+
+    override fun seasonListParse(response: Response): List<SAnime> =
+        emptyList()
 
     override fun getFilterList(): AnimeFilterList =
         AnimeFilterList()
