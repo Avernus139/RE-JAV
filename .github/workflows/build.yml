@@ -1,0 +1,62 @@
+
+name: Build Jav Library Extension
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/**'
+      - '.github/workflows/build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Jav Library source
+        uses: actions/checkout@v4
+
+      - name: Checkout extension framework
+        uses: actions/checkout@v4
+        with:
+          repository: yuzono/anime-extensions
+          path: framework
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Add Jav Library module
+        shell: bash
+        run: |
+          mkdir -p framework/src/all/javlibrary
+          cp -R src/all/javlibrary/. framework/src/all/javlibrary/
+
+          cat > framework/src/all/javlibrary/build.gradle <<'EOF'
+          ext {
+              extName = 'Jav Library'
+              extClass = '.JavLibrary'
+              extVersionCode = 1
+              isNsfw = true
+          }
+
+          apply plugin: "kei.plugins.extension.legacy"
+          EOF
+
+      - name: Build extension APK
+        working-directory: framework
+        run: |
+          chmod +x gradlew
+          ./gradlew :src:all:javlibrary:assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: JavLibrary-APK
+          path: framework/src/all/javlibrary/build/outputs/apk/**/*.apk
+          if-no-files-found: error
